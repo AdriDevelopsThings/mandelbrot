@@ -1,0 +1,18 @@
+[package]
+name = "mandelbrot"
+version = "0.1.0"
+edition = "2021"
+description = "A server for generating and hosting mandelbrot set tiles"
+authors = ["AdriDoesThings <contact@adridoesthings.com>", "PhilippIRL <pplussinfo@gmail.com>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum = "0.6.18"
+image = { version = "0.24.6", features = ["png"], default-features = false }
+tokio = { version = "1.28.2", features = ["full"] }
+tokio-util = { version = "0.7.8", features = ["io"] }
+
+[profile.release]
+lto = true
+opt-level = 3
