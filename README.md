@@ -5,7 +5,7 @@ A server for generating and hosting mandelbrot set tiles
 
 ## Host it yourself
 Just run the mandelbrot server with docker:  
-```docker run -d --name mandelbrot -v ./tiles:/tiles -p 80:80 ghcr.io/adridevelopsthings/mandelbrot```  
+```docker run -d --name mandelbrot -v ./tiles:/tiles -p 80:80 ghcr.io/adridevelopsthings/mandelbrot:main```  
 or build it yourself with ``cargo build --release``
 
 ## How to use?
