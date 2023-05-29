@@ -16,7 +16,7 @@ const GENERATE_ZOOMS: std::ops::Range<u32> = 0..4;
 async fn main() {
     // Pregenerate some zoom levels
     for zoom in GENERATE_ZOOMS {
-        let tiles: u32 = u32::pow(2, zoom);
+        let tiles: u64 = u64::pow(2, zoom);
         println!("Pregenerating tiles for zoom level {zoom}...");
         for x in 0..tiles {
             for y in 0..tiles {

@@ -8,7 +8,7 @@ use tokio_util::io::ReaderStream;
 use crate::render::{get_tile_path, render};
 
 pub async fn get_tile(
-    extract::Path((zoom, x, y)): extract::Path<(u32, u32, u32)>,
+    extract::Path((zoom, x, y)): extract::Path<(u32, u64, u64)>,
 ) -> impl IntoResponse {
     let path = PathBuf::from(get_tile_path(zoom, x, y));
     if !path.exists() {

@@ -17,12 +17,12 @@ fn get_pixels_per_tile() -> u32 {
         .expect("Error while parsing 'PIXELS_PER_TILE' environment variable. Environment variable must be a positive integer")
 }
 
-fn convert_cord(tile_cord: u32, tile_limit: u32) -> f64 {
+fn convert_cord(tile_cord: u64, tile_limit: u64) -> f64 {
     ((tile_cord as f64 / tile_limit as f64) * 4_f64) - 2_f64
 }
 
-pub fn render(x: u32, y: u32, zoom: u32) {
-    let tiles: u32 = u32::pow(2, zoom);
+pub fn render(x: u64, y: u64, zoom: u32) {
+    let tiles: u64 = u64::pow(2, zoom);
     let width = 4f64 / tiles as f64;
 
     let x_path_raw = format!(
@@ -55,7 +55,7 @@ pub fn render(x: u32, y: u32, zoom: u32) {
     image.save(tile_path).unwrap();
 }
 
-pub fn get_tile_path(zoom: u32, x: u32, y: u32) -> String {
+pub fn get_tile_path(zoom: u32, x: u64, y: u64) -> String {
     format!(
         "{}{MAIN_SEPARATOR}{zoom}{MAIN_SEPARATOR}{x}{MAIN_SEPARATOR}{y}.png",
         get_tiles_path()
