@@ -8,11 +8,11 @@ use tokio::fs::{metadata, read_dir, remove_file};
 use crate::render::get_tiles_path;
 
 async fn run_autodelete() {
-    let max_auto_delete_protected_zoom_level: u32 =
-        env::var("MAX_AUTO_DELETE_PROTECTED_ZOOM_LEVEL")
-            .unwrap_or_else(|_| "3".to_string())
-            .parse()
-            .unwrap();
+    let max_auto_delete_protected_zoom_level = env::var("MAX_AUTO_DELETE_PROTECTED_ZOOM_LEVEL")
+        .unwrap_or_else(|_| "3".to_string())
+        .parse::<u32>()
+        .unwrap()
+        + 1;
     let protected_zoom_levels = (0..max_auto_delete_protected_zoom_level)
         .map(|z| z.to_string())
         .collect::<Vec<String>>();

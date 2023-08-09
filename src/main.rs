@@ -17,8 +17,9 @@ async fn main() {
     tokio::spawn(async {
         let max_pregenerate_zoom_level = env::var("MAX_PREGENERATE_ZOOM_LEVEL")
             .unwrap_or_else(|_| "4".to_string())
-            .parse()
-            .expect("Invalid MAX_PREGENERATE_ZOOM_LEVEL");
+            .parse::<u32>()
+            .expect("Invalid MAX_PREGENERATE_ZOOM_LEVEL")
+            + 1;
         let generate_zooms: std::ops::Range<u32> = 0..max_pregenerate_zoom_level;
         for zoom in generate_zooms {
             let tiles: u64 = u64::pow(2, zoom);
@@ -37,6 +38,7 @@ async fn main() {
             }
             join_all(workers).await;
         }
+        println!("Finished pregenerating tiles");
     });
     println!("Starting server...");
     tokio::spawn(start_autodelete_runs());
