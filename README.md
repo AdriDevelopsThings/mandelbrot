@@ -8,6 +8,9 @@ Just run the mandelbrot server with docker:
 ```docker run -d --name mandelbrot -v ./tiles:/tiles -p 80:80 ghcr.io/adridevelopsthings/mandelbrot:main```  
 or build it yourself with ``cargo build --release``
 
+### Pregenerated tiles 
+I pregenerated the first 11 zoom levels for you if you want. You can download the file here: https://cdn.adridoesthings.com/mandelbrot_pregenerated_tiles.tar.gz
+
 ## How to use?
 Just open the url of the mandelbrot in your webbrowser.
 
