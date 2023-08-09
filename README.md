@@ -15,3 +15,4 @@ Just open the url of the mandelbrot in your webbrowser.
 - `TILES_PATH`: Configure where the tiles should be saved. (*tiles* is the default value, */tiles* is the default value in docker)
 - `PIXELS_PER_TILE`: Configure how many pixels should be displayed per row/column per tile (*255* is the default value)
 - `LISTEN_ADDRESS`: Configure where the mandelbrot server should listen (*127.0.0.1:8000* is the default value, *0.0.0.0:80* is the default value in docker)
+- `MAX_PREGENERATE_ZOOM_LEVEL`: Configure the max zoom level that should be pregenerated
