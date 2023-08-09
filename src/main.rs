@@ -1,6 +1,7 @@
 use std::{env, path::PathBuf};
 
 use auto_delete::start_autodelete_runs;
+use futures::future::join_all;
 use server::start_server;
 
 mod auto_delete;
@@ -22,14 +23,19 @@ async fn main() {
         for zoom in generate_zooms {
             let tiles: u64 = u64::pow(2, zoom);
             println!("Pregenerating tiles for zoom level {zoom}...");
+            let mut workers = Vec::new();
             for x in 0..tiles {
-                for y in 0..tiles {
-                    let path = PathBuf::from(render::get_tile_path(zoom, x, y));
-                    if !path.exists() {
-                        render::render(x, y, zoom);
+                let future = tokio::spawn(async move {
+                    for y in 0..tiles {
+                        let path = PathBuf::from(render::get_tile_path(zoom, x, y));
+                        if !path.exists() {
+                            render::render(x, y, zoom);
+                        }
                     }
-                }
+                });
+                workers.push(future);
             }
+            join_all(workers).await;
         }
     });
     println!("Starting server...");
