@@ -1,8 +1,11 @@
-use std::{env, path::PathBuf};
+use std::{env, path::{PathBuf, Path}};
 
 use auto_delete::start_autodelete_runs;
 use futures::future::join_all;
 use server::start_server;
+use tokio::fs::create_dir;
+
+use crate::render::get_tiles_path;
 
 mod auto_delete;
 mod color;
@@ -13,6 +16,12 @@ mod server;
 
 #[tokio::main]
 async fn main() {
+    let tiles_path = get_tiles_path();
+    let tiles_path = Path::new(&tiles_path);
+    if !tiles_path.exists() {
+        create_dir(tiles_path).await.expect("Error while creating tiles directory");
+    }
+
     // Pregenerate some zoom levels
     tokio::spawn(async {
         let max_pregenerate_zoom_level = env::var("MAX_PREGENERATE_ZOOM_LEVEL")
