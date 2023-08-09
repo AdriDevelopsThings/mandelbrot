@@ -49,6 +49,10 @@ async fn run_autodelete() {
 }
 
 pub async fn start_autodelete_runs() {
+    let disable_auto_delete = env::var("DISABLE_AUTO_DELETE").unwrap_or_else(|_| "false".to_string()).to_lowercase() == "true";
+    if disable_auto_delete {
+        return
+    }
     loop {
         run_autodelete().await;
         tokio::time::sleep(Duration::from_secs(120)).await;

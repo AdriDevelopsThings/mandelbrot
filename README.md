@@ -17,3 +17,4 @@ Just open the url of the mandelbrot in your webbrowser.
 - `LISTEN_ADDRESS`: Configure where the mandelbrot server should listen (*127.0.0.1:8000* is the default value, *0.0.0.0:80* is the default value in docker)
 - `MAX_PREGENERATE_ZOOM_LEVEL`: Configure the max zoom level that should be pregenerated
 - `MAX_AUTO_DELETE_PROTECTED_ZOOM_LEVEL`: Configure the max zoom level that wil be protected from auto deletion
+- `DISABLE_AUTO_DELETE`: Set this environment variable to `true` to disable the auto deletion of old tiles
