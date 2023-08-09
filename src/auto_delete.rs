@@ -1,17 +1,27 @@
-use std::time::{Duration, SystemTime};
+use std::{
+    env,
+    time::{Duration, SystemTime},
+};
 
-use tokio::fs::{read_dir, metadata, remove_file};
+use tokio::fs::{metadata, read_dir, remove_file};
 
 use crate::render::get_tiles_path;
 
-const PROTECTED_ZOOM_LEVELS: [&str; 4] = ["0", "1", "2", "3"];
-
 async fn run_autodelete() {
+    let max_auto_delete_protected_zoom_level: u32 =
+        env::var("MAX_AUTO_DELETE_PROTECTED_ZOOM_LEVEL")
+            .unwrap_or_else(|_| "3".to_string())
+            .parse()
+            .unwrap();
+    let protected_zoom_levels = (0..max_auto_delete_protected_zoom_level)
+        .map(|z| z.to_string())
+        .collect::<Vec<String>>();
+
     let tiles_path = get_tiles_path();
     let mut zooms = read_dir(tiles_path).await.unwrap();
     let mut n = 0;
     while let Some(zoom) = zooms.next_entry().await.unwrap() {
-        if PROTECTED_ZOOM_LEVELS.contains(&zoom.file_name().into_string().unwrap().as_str()) {
+        if protected_zoom_levels.contains(&zoom.file_name().into_string().unwrap()) {
             continue;
         }
         let mut xs = read_dir(zoom.path()).await.unwrap();
@@ -23,7 +33,9 @@ async fn run_autodelete() {
                 }
                 let meta = metadata(y.path()).await.unwrap();
                 if let Ok(time) = meta.accessed() {
-                    if SystemTime::now().duration_since(time).unwrap() > Duration::from_secs(60 * 60 * 12) {
+                    if SystemTime::now().duration_since(time).unwrap()
+                        > Duration::from_secs(60 * 60 * 12)
+                    {
                         n += 1;
                         remove_file(y.path()).await.unwrap();
                     }

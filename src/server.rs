@@ -23,11 +23,13 @@ pub async fn get_tile(
 }
 
 pub async fn index() -> impl IntoResponse {
-    ([(header::CONTENT_TYPE, "text/html")], include_str!("index.html"))
+    (
+        [(header::CONTENT_TYPE, "text/html")],
+        include_str!("index.html"),
+    )
 }
 
 pub async fn start_server() {
-
     let app = Router::new()
         .route("/", get(index))
         .route("/:zoom/:x/:y", get(get_tile));

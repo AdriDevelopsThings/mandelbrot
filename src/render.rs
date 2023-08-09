@@ -38,7 +38,6 @@ pub fn render(x: u64, y: u64, zoom: u32) {
     let start_x = convert_cord(x, tiles);
     let start_y = convert_cord(y, tiles);
 
-    
     let pixels_per_tile = get_pixels_per_tile();
 
     let pixel_size = width / pixels_per_tile as f64;

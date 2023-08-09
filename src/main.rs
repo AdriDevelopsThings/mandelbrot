@@ -1,20 +1,23 @@
-use std::{path::PathBuf, env};
+use std::{env, path::PathBuf};
 
-use server::start_server;
 use auto_delete::start_autodelete_runs;
+use server::start_server;
 
+mod auto_delete;
 mod color;
 mod complex;
 mod mandelbrot;
 mod render;
 mod server;
-mod auto_delete;
 
 #[tokio::main]
 async fn main() {
     // Pregenerate some zoom levels
     tokio::spawn(async {
-        let max_pregenerate_zoom_level = env::var("MAX_PREGENERATE_ZOOM_LEVEL").unwrap_or_else(|_| "4".to_string()).parse().expect("Invalid MAX_PREGENERATE_ZOOM_LEVEL");
+        let max_pregenerate_zoom_level = env::var("MAX_PREGENERATE_ZOOM_LEVEL")
+            .unwrap_or_else(|_| "4".to_string())
+            .parse()
+            .expect("Invalid MAX_PREGENERATE_ZOOM_LEVEL");
         let generate_zooms: std::ops::Range<u32> = 0..max_pregenerate_zoom_level;
         for zoom in generate_zooms {
             let tiles: u64 = u64::pow(2, zoom);
