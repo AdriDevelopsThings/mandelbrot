@@ -4,6 +4,8 @@ use auto_delete::start_autodelete_runs;
 use futures::future::join_all;
 use server::start_server;
 use tokio::fs::create_dir;
+#[cfg(feature = "pregenerate_progressbar")]
+use indicatif::ProgressBar;
 
 use crate::render::get_tiles_path;
 
@@ -23,7 +25,7 @@ async fn main() {
     }
 
     // Pregenerate some zoom levels
-    tokio::spawn(async {
+    let pregenerate_future = tokio::spawn(async {
         let max_pregenerate_zoom_level = env::var("MAX_PREGENERATE_ZOOM_LEVEL")
             .unwrap_or_else(|_| "4".to_string())
             .parse::<u32>()
@@ -45,11 +47,27 @@ async fn main() {
                 });
                 workers.push(future);
             }
-            join_all(workers).await;
+            if cfg!(feature = "pregenerate_progressbar") {
+                #[cfg(feature = "pregenerate_progressbar")]
+                {
+                    let progress_bar = ProgressBar::new(tiles);
+                    for worker in workers {
+                        worker.await.unwrap();
+                        progress_bar.inc(1);
+                    }
+                    progress_bar.finish();
+                }
+            } else {
+                join_all(workers).await;
+            }
         }
         println!("Finished pregenerating tiles");
     });
-    println!("Starting server...");
-    tokio::spawn(start_autodelete_runs());
-    start_server().await;
+
+    if !env::args().any(|x| x == *"--only-pregenerate") {
+        println!("Starting server...");
+        tokio::spawn(start_autodelete_runs());
+        start_server().await;
+    }
+    pregenerate_future.await.unwrap();
 }
