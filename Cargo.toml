@@ -10,7 +10,7 @@ authors = ["AdriDoesThings <contact@adridoesthings.com>", "PhilippIRL <pplussinf
 [dependencies]
 axum = "0.6.18"
 futures = "0.3.28"
-image = { version = "0.24.6", features = ["png"], default-features = false }
+image = { version = "0.24.7", features = ["png"], default-features = false }
 indicatif = { version = "0.17.6", optional = true }
 tokio = { version = "1.28.2", features = ["full"] }
 tokio-util = { version = "0.7.8", features = ["io"] }
