@@ -1,11 +1,14 @@
-use std::{env, path::{PathBuf, Path}};
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
 
 use auto_delete::start_autodelete_runs;
 use futures::future::join_all;
-use server::start_server;
-use tokio::fs::create_dir;
 #[cfg(feature = "pregenerate_progressbar")]
 use indicatif::ProgressBar;
+use server::start_server;
+use tokio::fs::create_dir;
 
 use crate::render::get_tiles_path;
 
@@ -21,7 +24,9 @@ async fn main() {
     let tiles_path = get_tiles_path();
     let tiles_path = Path::new(&tiles_path);
     if !tiles_path.exists() {
-        create_dir(tiles_path).await.expect("Error while creating tiles directory");
+        create_dir(tiles_path)
+            .await
+            .expect("Error while creating tiles directory");
     }
 
     // Pregenerate some zoom levels
