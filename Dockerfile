@@ -17,7 +17,5 @@ COPY --from=build /build/target/release/mandelbrot /app/bin/mandelbrot
 
 ENV LISTEN_ADDRESS=0.0.0.0:80
 EXPOSE 80
-ENV TILES_PATH=/tiles
-VOLUME [ "/tiles" ]
 
 CMD [ "/app/bin/mandelbrot" ]

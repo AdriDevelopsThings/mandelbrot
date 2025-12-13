@@ -1,39 +1,25 @@
-use std::{
-    env,
-    fs::create_dir_all,
-    path::{Path, MAIN_SEPARATOR},
-};
+use std::{env, io::Cursor};
 
 use image::{ImageBuffer, Rgb};
 
-use crate::mandelbrot::get_mandelbrot_color;
-
-pub fn get_tiles_path() -> String {
-    env::var("TILES_PATH").unwrap_or_else(|_| String::from("tiles"))
-}
+use crate::{data::Data, mandelbrot::get_mandelbrot_color};
 
 fn get_pixels_per_tile() -> u32 {
     env::var("PIXELS_PER_TILE").unwrap_or_else(|_| String::from("255")).parse()
         .expect("Error while parsing 'PIXELS_PER_TILE' environment variable. Environment variable must be a positive integer")
 }
 
+pub fn get_key(zoom: u32, x: u64, y: u64) -> String {
+    format!("{zoom}_{x}_{y}")
+}
+
 fn convert_cord(tile_cord: u64, tile_limit: u64) -> f64 {
     ((tile_cord as f64 / tile_limit as f64) * 4_f64) - 2_f64
 }
 
-pub fn render(x: u64, y: u64, zoom: u32) {
+pub async fn render(data: &Data, x: u64, y: u64, zoom: u32, ex: Option<i64>) -> Vec<u8> {
     let tiles: u64 = u64::pow(2, zoom);
     let width = 4f64 / tiles as f64;
-
-    let x_path_raw = format!(
-        "{}{MAIN_SEPARATOR}{zoom}{MAIN_SEPARATOR}{x}",
-        get_tiles_path()
-    );
-    let x_path = Path::new(&x_path_raw);
-
-    if !x_path.exists() {
-        create_dir_all(x_path).unwrap();
-    }
 
     let start_x = convert_cord(x, tiles);
     let start_y = convert_cord(y, tiles);
@@ -50,13 +36,10 @@ pub fn render(x: u64, y: u64, zoom: u32) {
         Rgb(color)
     });
 
-    let tile_path = format!("{x_path_raw}{MAIN_SEPARATOR}{y}.png");
-    image.save(tile_path).unwrap();
-}
-
-pub fn get_tile_path(zoom: u32, x: u64, y: u64) -> String {
-    format!(
-        "{}{MAIN_SEPARATOR}{zoom}{MAIN_SEPARATOR}{x}{MAIN_SEPARATOR}{y}.png",
-        get_tiles_path()
-    )
+    let mut bytes = Vec::new();
+    image
+        .write_to(&mut Cursor::new(&mut bytes), image::ImageFormat::Png)
+        .unwrap();
+    data.set(&get_key(zoom, x, y), &bytes, ex).await;
+    bytes
 }

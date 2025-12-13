@@ -1,36 +1,26 @@
-use std::{
-    env,
-    path::{Path, PathBuf},
-};
+use std::env;
 
-use auto_delete::start_autodelete_runs;
 use futures::future::join_all;
 #[cfg(feature = "pregenerate_progressbar")]
 use indicatif::ProgressBar;
 use server::start_server;
-use tokio::fs::create_dir;
 
-use crate::render::get_tiles_path;
+use crate::{data::Data, render::get_key};
 
-mod auto_delete;
 mod color;
 mod complex;
+mod data;
 mod mandelbrot;
 mod render;
 mod server;
 
 #[tokio::main]
 async fn main() {
-    let tiles_path = get_tiles_path();
-    let tiles_path = Path::new(&tiles_path);
-    if !tiles_path.exists() {
-        create_dir(tiles_path)
-            .await
-            .expect("Error while creating tiles directory");
-    }
+    let data = Data::new(env::var("REDIS_URL").unwrap_or_else(|_| "redis://localhost".to_string()));
 
     // Pregenerate some zoom levels
-    let pregenerate_future = tokio::spawn(async {
+    let p_data = data.clone();
+    let pregenerate_future = tokio::spawn(async move {
         let max_pregenerate_zoom_level = env::var("MAX_PREGENERATE_ZOOM_LEVEL")
             .unwrap_or_else(|_| "4".to_string())
             .parse::<u32>()
@@ -42,11 +32,11 @@ async fn main() {
             println!("Pregenerating tiles for zoom level {zoom}...");
             let mut workers = Vec::new();
             for x in 0..tiles {
+                let c_data = p_data.clone();
                 let future = tokio::spawn(async move {
                     for y in 0..tiles {
-                        let path = PathBuf::from(render::get_tile_path(zoom, x, y));
-                        if !path.exists() {
-                            render::render(x, y, zoom);
+                        if !c_data.exists(&get_key(zoom, x, y)).await {
+                            render::render(&c_data, x, y, zoom, None).await;
                         }
                     }
                 });
@@ -71,8 +61,7 @@ async fn main() {
 
     if !env::args().any(|x| x == *"--only-pregenerate") {
         println!("Starting server...");
-        tokio::spawn(start_autodelete_runs());
-        start_server().await;
+        start_server(data).await;
     }
     pregenerate_future.await.unwrap();
 }
